@@ -44,7 +44,7 @@ device = 'cuda:0'
 
 model = AdaINModel()
 weights_dict = torch.load(
-    "/media/totolia/datos_3/research/adain/results/model_without_remove/25_09_2021__17_50_58/checkpoints/checkpoint_5_1.649596.pkl"
+    "/media/totolia/datos_3/research/adain/results/model_without_remove/25_09_2021__17_50_58/checkpoints/checkpoint_29_1.237152.pkl"
 )
 model.load_state_dict(weights_dict)
 model.eval()
@@ -59,8 +59,18 @@ for i in tqdm(range(int(np.floor(encoded_vid.duration)))):
     audio = video_block['audio']
 
     # Aggrupate audio
-    audio = audio[:(audio.shape[0] // 25 * 25)]
-    audio_chunks, _ = torch.max(audio.reshape(video.shape[0], -1), dim=-1)
+    # audio = audio[:(audio.shape[0] // 25 * 25)]
+    # audio_chunks, _ = torch.max(audio.reshape(video.shape[0], -1), dim=-1)
+
+    audio_chunks = torchaudio.transforms.MelSpectrogram(
+        sample_rate=audio.shape[0], 
+        n_fft=4*400,
+        hop_length=int(np.ceil(audio.shape[0] / video.shape[0])),
+        n_mels=5
+    )(audio)
+    r = audio_chunks
+    audio_chunks = (torchaudio.transforms.AmplitudeToDB()(audio_chunks[0, :]) + 100.0) / 170.
+    # audio_chunks = torch.clip(audio_chunks[0, :], 0., 70.) / 70. # torchaudio.transforms.AmplitudeToDB()(audio_chunks)[:, 0].mean(dim=-1)
 
     # Resize video
     with torch.no_grad():

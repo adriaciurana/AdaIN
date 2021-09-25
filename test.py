@@ -10,9 +10,19 @@ from tqdm import tqdm
 
 from model import AdaINModel
 
-def get_images_result(x_norm):
-    im_np = np.uint8(255 * torch.clip(unnormalize(x_norm), 0., 1.).permute(0, 2, 3, 1).cpu().numpy())
-    return [Image.fromarray(x) for x in im_np]
+def get_images_result(x_norm, percentiles=[0, 98]):
+    pixvals = x_norm.permute(0, 2, 3, 1).cpu().numpy()
+
+    minval = np.percentile(pixvals, percentiles[0], axis=(1, 2, 3), keepdims=True)
+    maxval = np.percentile(pixvals, percentiles[1], axis=(1, 2, 3), keepdims=True)
+    pixvals = np.clip(pixvals, minval, maxval)
+    pixvals = np.uint8(((pixvals - minval) / (maxval - minval)) * 255)
+    
+    return [Image.fromarray(x) for x in pixvals]
+
+# def get_images_result(x_norm):
+#     im_np = np.uint8(255 * torch.clip(unnormalize(x_norm), 0., 1.).permute(0, 2, 3, 1).cpu().numpy())
+#     return [Image.fromarray(x) for x in im_np]
 
 def create_grid(images_content, images_style, output_dict, im_size):
     rows = len(images_content)

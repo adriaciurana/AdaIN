@@ -1,4 +1,5 @@
 import functools
+from numpy import imag
 
 import torch
 from torch import nn
@@ -35,9 +36,17 @@ class VGG19_Reflection_Encoder(nn.Module):
         'relu4_1': 20 + 1
     }
 
+    REMOVE = [
+        #4 # RemoveFirstMaxPool
+    ]
+
     def __init__(self):
         super().__init__()
         base = vgg19(pretrained=True)
+
+        # Remove layers
+        for i in self.REMOVE:
+            base.features[i] = nn.Identity()
 
         offset = 0
         self.feature_names = list(self.BLOCKS.keys())
@@ -107,6 +116,12 @@ class AdaINModel(nn.Module):
         self.decoder = Reflection_Decoder()
 
     def forward(self, images_content, images_style, alpha=1.0):
+        if isinstance(alpha, float):
+            alpha = torch.tensor(alpha)[None, None, None, None]
+        else:
+            alpha = alpha[:, None, None, None]
+        alpha = alpha.to(dtype=images_content.dtype, device=images_content.device)
+
         _, feat_content = self.encoder(images_content)
         _, feat_style = self.encoder(images_style)
         t = adaIN(feat_content, feat_style)

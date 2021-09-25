@@ -184,7 +184,6 @@ def test(dataloader, model, epoch, logger, mixed_precision):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Train algorithm')
     parser.add_argument('-e', '--experiment', type=str, help='Name of the experiment', required=True)
-    parser.add_argument('-b', '--backbone', type=str, help='Backbone inside the architecture', default='drn')
     parser.add_argument('-rc', '--resume_check', type=str, help='Path to checkpoint to resume training', default=None)
     parser.add_argument('-ro', '--resume_opt', type=str, help='Path to optimizer to resume training', default=None)
     parser.add_argument('-d', '--device', type=str, help='Device for the training', default=0)

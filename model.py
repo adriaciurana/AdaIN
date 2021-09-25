@@ -71,7 +71,6 @@ class Reflection_Decoder(nn.Module):
             nn.Upsample(scale_factor=2, mode='bilinear'),
             nn.Conv2d(256, 256, (3, 3), padding=1),
             nn.ReLU(),
-            nn.Dropout2d(p=.1),
 
             nn.Conv2d(256, 256, (3, 3), padding=1),
             nn.ReLU(),
@@ -85,7 +84,6 @@ class Reflection_Decoder(nn.Module):
             nn.Upsample(scale_factor=2, mode='bilinear'),
             nn.Conv2d(128, 128, (3, 3), padding=1),
             nn.ReLU(),
-            nn.Dropout2d(p=.1),
 
             nn.Conv2d(128, 64, (3, 3), padding=1),
             nn.ReLU(),
@@ -93,7 +91,6 @@ class Reflection_Decoder(nn.Module):
             nn.Upsample(scale_factor=2, mode='bilinear'),
             nn.Conv2d(64, 64, (3, 3), padding=1),
             nn.ReLU(),
-            nn.Dropout2d(p=.1),
 
             nn.Conv2d(64, 3, (3, 3), padding=1),
         )
@@ -114,7 +111,7 @@ class AdaINModel(nn.Module):
         _, feat_style = self.encoder(images_style)
         t = adaIN(feat_content, feat_style)
 
-        interpolate_t = t * alpha + (1. - alpha) * feat_content
+        interpolate_t = alpha * t + (1. - alpha) * feat_content
 
         g_t = self.decoder(interpolate_t)
         return g_t

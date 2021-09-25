@@ -15,7 +15,7 @@ class Params:
 
     BATCH_SIZE = 12
     EPOCHS = 400
-    CHECKPOINT_SAVE_INTERVAL = 5
+    CHECKPOINT_SAVE_INTERVAL = 1
     MODEL_PATTERN = "checkpoint_{epoch:d}_{loss:f}.pkl"
     LR = 1e-4
     LOGGER_PATTERN = {

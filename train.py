@@ -17,7 +17,7 @@ from params import Params
 from dataset import StyleTransferDataset
 from model import AdaINModel
 from losses import content_loss, style_loss
-from utils import NaiveWith, adaIN, create_mosaic
+from utils import NaiveWith, adaIN, create_mosaic, normalize, unnormalize
 
 from logger import Logger
 
@@ -209,9 +209,6 @@ if __name__ == '__main__':
 
     OUTPUT_CHECKPOINTS = os.path.join(OUTPUT_FOLDER, 'checkpoints')
     os.makedirs(OUTPUT_CHECKPOINTS, exist_ok=True)
-
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
 
     train_transform = transforms.Compose([
         transforms.Resize(255),

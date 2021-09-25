@@ -1,4 +1,5 @@
 import torch
+from torchvision import transforms
 
 def compute_mu_sigma(x):
     mu = torch.mean(x + 1e-6, dim=(2, 3))
@@ -31,10 +32,6 @@ class UnNormalize(object):
         return tensor
 
 def create_mosaic(dataloader, model, device, num_batches=20):
-    unnorm = UnNormalize(
-        mean=[0.485, 0.456, 0.406], 
-        std=[0.229, 0.224, 0.225]
-    )
     iter_dataloader = iter(dataloader)
 
     images_content_unnorm = []
@@ -50,9 +47,9 @@ def create_mosaic(dataloader, model, device, num_batches=20):
 
                 g_t = model(images_content, images_style)
 
-                images_content_unnorm.append(torch.clip(unnorm(images_content), 0., 1.))
-                images_style_unnorm.append(torch.clip(unnorm(images_style), 0., 1.))
-                images_content_styled_unnorm.append(torch.clip(unnorm(g_t), 0., 1.))
+                images_content_unnorm.append(torch.clip(unnormalize(images_content), 0., 1.))
+                images_style_unnorm.append(torch.clip(unnormalize(images_style), 0., 1.))
+                images_content_styled_unnorm.append(torch.clip(unnormalize(g_t), 0., 1.))
             
             except StopIteration:
                 iter_dataloader = iter(dataloader)
@@ -73,3 +70,13 @@ class NaiveWith:
 
     def __exit__(self, type, value, traceback):
         pass
+
+normalize = transforms.Normalize(
+    mean=[0.485, 0.456, 0.406],
+    std=[0.229, 0.224, 0.225]
+)
+
+unnormalize = UnNormalize(
+    mean=[0.485, 0.456, 0.406], 
+    std=[0.229, 0.224, 0.225]
+)

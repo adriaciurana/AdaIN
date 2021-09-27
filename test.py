@@ -10,19 +10,19 @@ from tqdm import tqdm
 
 from model import AdaINModel
 
-def get_images_result(x_norm, percentiles=[0, 98]):
-    pixvals = x_norm.permute(0, 2, 3, 1).cpu().numpy()
+# def get_images_result(x_norm, percentiles=[0, 98]):
+#     pixvals = x_norm.permute(0, 2, 3, 1).cpu().numpy()
 
-    minval = np.percentile(pixvals, percentiles[0], axis=(1, 2, 3), keepdims=True)
-    maxval = np.percentile(pixvals, percentiles[1], axis=(1, 2, 3), keepdims=True)
-    pixvals = np.clip(pixvals, minval, maxval)
-    pixvals = np.uint8(((pixvals - minval) / (maxval - minval)) * 255)
+#     minval = np.percentile(pixvals, percentiles[0], axis=(1, 2, 3), keepdims=True)
+#     maxval = np.percentile(pixvals, percentiles[1], axis=(1, 2, 3), keepdims=True)
+#     pixvals = np.clip(pixvals, minval, maxval)
+#     pixvals = np.uint8(((pixvals - minval) / (maxval - minval)) * 255)
     
-    return [Image.fromarray(x) for x in pixvals]
+#     return [Image.fromarray(x) for x in pixvals]
 
-# def get_images_result(x_norm):
-#     im_np = np.uint8(255 * torch.clip(unnormalize(x_norm), 0., 1.).permute(0, 2, 3, 1).cpu().numpy())
-#     return [Image.fromarray(x) for x in im_np]
+def get_images_result(x_norm):
+    im_np = np.uint8(255 * torch.clip(unnormalize(x_norm), 0., 1.).permute(0, 2, 3, 1).cpu().numpy())
+    return [Image.fromarray(x) for x in im_np]
 
 def create_grid(images_content, images_style, output_dict, im_size):
     rows = len(images_content)
@@ -120,6 +120,7 @@ if __name__ == '__main__':
     parser.add_argument('-w', '--weights_path', type=str, help='Weights of the model', required=True)
     parser.add_argument('-ic', '--image_content_path', type=str, help='Image content', required=True)
     parser.add_argument('-is', '--image_style_path', type=str, help='Image style', required=True)
+    parser.add_argument('-o', '--output_path', type=str, help='Image mosaic output', default="./mosaic.jpg", required=False)
     parser.add_argument('-a', '--alpha', type=float, help='Alpha', required=False, default=.5)
     parser.add_argument('-d', '--device', type=str, help='Device for the training', default=0)
     args = parser.parse_args()
@@ -159,7 +160,7 @@ if __name__ == '__main__':
         device=DEVICE,
         im_size=IM_SIZE
     )
-    mosaic.save('mosaic.jpg')
+    mosaic.save(args.output_path)
                 
                 
 

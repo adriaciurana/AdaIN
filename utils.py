@@ -21,15 +21,19 @@ def adaIN(feat_content, feat_style):
     return t
 
 class UnNormalize(object):
-    def __init__(self, mean, std):
+    def __init__(self, mean, std, inplace=False):
         self.mean = mean
         self.std = std
+        self.inplace = inplace
 
     def __call__(self, tensor):
         mean = torch.tensor(self.mean, device=tensor.device, dtype=tensor.dtype)[None, :, None, None]
         std = torch.tensor(self.std, device=tensor.device, dtype=tensor.dtype)[None, :, None, None]
-        tensor.mul_(std).add_(mean)
-        return tensor
+        if self.inplace:
+            tensor.mul_(std).add_(mean)
+            return tensor
+        else:
+            return tensor.mul(std).add(mean)
 
 def create_mosaic(dataloader, model, device, num_batches=20):
     iter_dataloader = iter(dataloader)
